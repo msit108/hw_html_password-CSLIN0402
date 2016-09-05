@@ -1,51 +1,229 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-<script src="js/jquery.js"></script>
-<script src="js/seedrandom.js"></script>
-<style>
-#randomTable {
-    font-family: monospace;
-    font-size: 2.0em;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/jquery.js"></script>
+    <script src="js/seedrandom.js"></script>
+
+    <style>
+        body {
+            background-color: #353333;
+        }
+
+        #letter {
+            height: 33px;
+            width: 160px;
+            color: #a9a1a1;
+        }
+
+        #randomTable {
+            font-family: monospace;
+            color: #ffffff;
+            font-size: 3.5em;
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            margin: -150px 0 0 -300px;
+        }
+
+        .box {
+            position: fixed;
+            top: -200px;
+            left: 35%;
+            
+            width: 450px;
+            background-color: #fff;
+            color: #7F7F7F;
+            padding: 20px;
+            border: 2px solid #ccc;
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            -khtml-border-radius: 20px;
+            -moz-box-shadow: 0 1px 5px #333;
+            -webkit-box-shadow: 0 1px 5px #333;
+            z-index: 101;
+            -webkit-transition: top 3s ease-out;
+            -ms-transition: top 3s ease-out;
+            transition: top 3s ease-out;
+        }
+
+            .box h1 {
+                border-bottom: 1px dashed #7F7F7F;
+                margin: -20px -20px 0px -20px;
+                padding: 10px;
+                background-color: #FFEFEF;
+                color: #EF7777;
+                -moz-border-radius: 20px 20px 0px 0px;
+                -webkit-border-top-left-radius: 20px;
+                -webkit-border-top-right-radius: 20px;
+                -khtml-border-top-left-radius: 20px;
+                -khtml-border-top-right-radius: 20px;
+            }
+
+        a.boxclose {
+            float: right;
+            width: 26px;
+            height: 26px;
+            background: transparent url(cancel.png) repeat top left;
+            margin-top: -30px;
+            margin-right: -30px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" style="font-size:26px" href="#">Random Number Generator</a>
 
-請輸入亂數表的編號：<input type="text" id="txtSeed" value="1234" />
-&nbsp;<input type="button" id="btnGo" value="產生亂數表" />
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="txtSeed" placeholder="請輸入亂數表的行數">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="txtSeed2" placeholder="請輸入亂數表的行數">
+                    </div>
+                    <select name="letter" id="letter" placeholder="請輸入亂數表的行數">
+                        <option value="val0">純數字</option>
+                        <option value="val1">數字+小寫字母: (去除 l, o)</option>
+                        <option value="val2">數字+大小寫字母: (去除 I, O, l, o)</option>
+                    </select>
+                    <button type="button" class="btn btn-success" id="btnGo">產生亂數表</button>
+                    <button type="button" class="btn btn-success" id="btnGo2" onclick="doAnimateShow()">說明</button>
+                </form>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </nav>
 
-<div id="randomTable">
-</div>
+    <!--請輸入亂數表的編號：<input type="text" id="txtSeed" value="" />
+    &nbsp; <input type="button" id="btnGo" value="產生亂數表" /><br />
+    請輸入亂數表的行數：<input type="text" id="txtSeed2" value="" /><br />
+    請設定亂數表的類別：<select name="letter" id="letter">
+        <option value="val0">純數字</option>
+        <option value="val1">數字+小寫字母: (去除 l, o)</option>
+        <option value="val2">數字+大小寫字母: (去除 I, O, l, o)</option>
+    </select>-->
+    <div class="center" id="randomTable">
+    </div>
+    <div id="debug"></div>
+    <div class="box" id="box">
+        <a class="boxclose" id="boxclose"></a>
+        <h1>說明</h1>
+        <p>
+            網頁上方請輸入亂數表編號和亂數表行數,右邊下拉是選單能加強程式功能,單點產生亂數表,即可在畫面中央出現亂數表。
+        </p>
+    </div>
 
-<script>
 
-$("#btnGo").click(function () {
-    var result = "";
-	// 純數字:
-	var sPool = "0123456789";
-    // 數字+小寫字母: (去除 l, o)
-    // var sPool = "abcdefghijkmnpqrstuvwxyz0123456789";
-    // 數字+大小寫字母: (去除 I, O, l, o)
-    // var sPool = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz0123456789";
+    <script>
 
-    Math.seedrandom($("#txtSeed").val()); // 設定亂數種子
-	var iRandom = 0; var ch = "?";
-	for (iRow = 1; iRow <= 10; iRow++) {
-		var sLine = (iRow + 100).toString().substr(1, 2) + ": ";
-		for (iCol = 1; iCol <= 10; iCol++) {
-			iRandom = Math.floor(Math.random() * sPool.length);
-			ch = sPool.substr(iRandom, 1);
-			sLine += ch;
-		}
-		result += sLine + "<br>";
-	}
-	$("#randomTable").html(result);
-});
+        $("#btnGo").click(function () {
+            var result = "";
+            // 純數字:
 
-</script>
 
+            sPool0 = "0123456789";
+            // 數字+小寫字母: (去除 l, o)
+            sPool1 = "abcdefghijkmnpqrstuvwxyz0123456789";
+            // 數字+大小寫字母: (去除 I, O, l, o)
+            sPool2 = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz0123456789";
+
+            Math.seedrandom($("#txtSeed").val()); // 設定亂數種子
+            var s = Number(txtSeed2.value);
+            if (document.getElementById('letter').value == "val0") {
+
+
+
+                var iRandom = 0; var ch = "?";
+                for (iRow = 1; iRow <= 10; iRow++) {
+                    var sLine = (iRow + 100).toString().substr(1, 2) + ": ";
+                    for (iCol = 1; iCol <= s; iCol++) {
+                        iRandom = Math.floor(Math.random() * sPool0.length);
+                        ch = sPool0.substr(iRandom, 1);
+                        sLine += ch;
+                    }
+                    result += sLine + "<br>";
+                }
+                $("#randomTable").html(result);
+
+            }
+            else if (document.getElementById('letter').value == "val1") {
+
+
+
+                var iRandom = 0; var ch = "?";
+                for (iRow = 1; iRow <= 10; iRow++) {
+                    var sLine = (iRow + 100).toString().substr(1, 2) + ": ";
+                    for (iCol = 1; iCol <= s; iCol++) {
+                        iRandom = Math.floor(Math.random() * sPool1.length);
+                        ch = sPool1.substr(iRandom, 1);
+                        sLine += ch;
+                    }
+                    result += sLine + "<br>";
+                }
+                $("#randomTable").html(result);
+
+            }
+
+            else if (document.getElementById('letter').value == "val2") {
+
+
+
+                var iRandom = 0; var ch = "?";
+                for (iRow = 1; iRow <= 10; iRow++) {
+                    var sLine = (iRow + 100).toString().substr(1, 2) + ": ";
+                    for (iCol = 1; iCol <= s; iCol++) {
+                        iRandom = Math.floor(Math.random() * sPool2.length);
+                        ch = sPool2.substr(iRandom, 1);
+                        sLine += ch;
+                    }
+                    result += sLine + "<br>";
+                }
+                $("#randomTable").html(result);
+
+            }
+            //Math.seedrandom($("#txtSeed").val()); // 設定亂數種子
+
+
+            //var iRandom = 0; var ch = "?";
+            //for (iRow = 1; iRow <= 10; iRow++) {
+            //    var sLine = (iRow + 100).toString().substr(1, 2) + ": ";
+            //    for (iCol = 1; iCol <= 10; iCol++) {
+            //        iRandom = Math.floor(Math.random() * sPool[0].length);
+            //        ch = sPool[0].substr(iRandom, 1);
+            //        sLine += ch;
+            //    }
+            //    result += sLine + "<br>";
+            //}
+            //$("#randomTable").html(result);
+        });
+        function doAnimateShow() {
+            document.getElementById("box").style.top = "200px";
+        }
+
+        function doAnimateHide() {
+            document.getElementById("box").style.top = "-200px";
+        }
+
+        document.getElementById("boxclose").onclick = doAnimateHide;
+
+    </script>
+
+
+
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
 </body>
 </html>
